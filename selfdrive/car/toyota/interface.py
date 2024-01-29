@@ -262,35 +262,21 @@ class CarInterface(CarInterfaceBase):
     # to a negative value, so it won't matter.
     ret.minEnableSpeed = -1. if (stop_and_go or ret.enableGasInterceptor) else MIN_ACC_SPEED
 
+    # on stock Toyota this is -2.5
+    ret.stopAccel = -2.5
+
     tune = ret.longitudinalTuning
-    tune.deadzoneBP = [0., 9.]
-    tune.deadzoneV = [.0, .15]
-    if (candidate in TSS2_CAR or ret.enableGasInterceptor) and Params().get_bool("TSS2Tune"):
-      # TSS2 tune - Credit goes to the DragonPilot team!
-      tune.kpBP = [0., 5., 20.]
-      tune.kpV = [1.3, 1.0, 0.7]
-      # In MPH  = [ 0.,   2,    5,   11,   27,  45,  52,  67,   90] ​​
-      tune.kiBP = [ 0.,  1.,   2.,   5.,  12., 20., 23., 30.,  40.]
-      tune.kiV =  [.33, .33, .313, .245, .215, .17, .10, .01, .001]
-      if candidate in TSS2_CAR:
-        ret.vEgoStopping = 0.1         # car is near 0.1 to 0.2 when car starts requesting stopping accel
-        ret.vEgoStarting = 0.1         # needs to be > or == vEgoStopping
-        ret.stopAccel = -0.40          # Toyota requests -0.4 when stopped
-        ret.stoppingDecelRate = 0.5    # reach stopping target smoothly
-    elif candidate in TSS2_CAR or ret.enableGasInterceptor:
-      tune.kpBP = [0., 5., 20.]
-      tune.kpV = [1.3, 1.0, 0.7]
-      tune.kiBP = [0., 5., 12., 20., 27.]
-      tune.kiV = [.35, .23, .20, .17, .1]
-      if candidate in TSS2_CAR:
-        ret.vEgoStopping = 0.25
-        ret.vEgoStarting = 0.25
-        ret.stoppingDecelRate = 0.3  # reach stopping target smoothly
-    else:
-      tune.kpBP = [0., 5., 35.]
-      tune.kiBP = [0., 35.]
-      tune.kpV = [3.6, 2.4, 1.5]
-      tune.kiV = [0.54, 0.36]
+    tune.deadzoneBP = [0., 16., 20., 30.]
+    tune.deadzoneV = [0., .03, .06, .15]
+    ret.stoppingDecelRate = 0.3  # This is okay for TSS-P
+    if candidate in TSS2_CAR:
+      ret.vEgoStopping = 0.25
+      ret.vEgoStarting = 0.25
+      ret.stoppingDecelRate = 0.009  # reach stopping target smoothly
+    tune.kpBP = [0.]
+    tune.kpV = [1.]
+    tune.kiBP = [0.]
+    tune.kiV = [1.]
 
     return ret
 
